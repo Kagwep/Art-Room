@@ -1,0 +1,33 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="15 0 24 24"
+  width="200"
+  height="100"
+>
+  <!-- Background shape -->
+  <rect width="24" height="24" fill="#ffffff" />
+
+  <!-- Stars -->
+  <circle cx="5" cy="8" r="1" fill="#ffffff" />
+  <circle cx="10" cy="5" r="1" fill="#ffffff" />
+  <circle cx="15" cy="7" r="1" fill="#ffffff" />
+  <circle cx="19" cy="9" r="1" fill="#ffffff" />
+  <circle cx="7" cy="15" r="1" fill="#ffffff" />
+  <circle cx="12" cy="13" r="1" fill="#ffffff" />
+  <circle cx="17" cy="17" r="1" fill="#ffffff" />
+
+  <!-- Moon -->
+  <circle cx="18" cy="5" r="4" fill="#fdd835" />
+
+  <!-- Spaceship -->
+  <path
+    fill="#03a9f4"
+    d="M12,20c-0.27,0-0.52-0.11-0.71-0.29c-0.2-0.2-0.29-0.45-0.29-0.71V14h-2c-0.55,0-1-0.45-1-1v-2.17
+    c0-0.27,0.11-0.52,0.29-0.71L11,6.45l3.71,3.71C14.89,10.48,15,10.73,15,11V13c0,0.55-0.45,1-1,1h-2v5.29
+    c0,0.26-0.09,0.51-0.29,0.71C12.52,19.89,12.27,20,12,20z"
+  />
+
+  <!-- ART ROOM text -->
+  <text x="15" y="17" font-family="Arial" font-size="4" font-weight="bold" fill="black">ART ROOM</text>
+</svg>
+
