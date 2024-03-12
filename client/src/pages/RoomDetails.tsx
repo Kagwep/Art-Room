@@ -20,9 +20,16 @@ import {
   ArcRotateCamera,
   CubeTexture,
   ActionManager,
-  ExecuteCodeAction
+  ExecuteCodeAction,
+  UniversalCamera,
+  Color3,
+  AmmoJSPlugin,
+  CannonJSPlugin,
+  HavokPlugin
 } from "@babylonjs/core";
 import '@babylonjs/loaders';
+import { TfiRulerAlt } from "react-icons/tfi";
+import HavokPhysics from "@babylonjs/havok";
 
 type KeyStatus = {
   w: boolean;
@@ -60,15 +67,205 @@ const roomDetails = () => {
     let animSpeed;
     
       const engine = new Engine(canvas, true);
+
+      // scene
       const scene = new Scene(engine);
-   
-      var camera = new ArcRotateCamera("camera1", 0,  0, 10, Vector3.Zero(), scene);
+
+      scene.ambientColor =  new Color3(1,1,1);
+      scene.gravity = new Vector3(0,-0.75,0);
+
+      scene.collisionsEnabled = true;
+
+
+
+
+
+
+
+   // camera
+      const camera = new UniversalCamera("UniversalCamera", new Vector3(0,2,-25), scene);
+
+      camera.setTarget(Vector3.Zero());
+
+      camera.applyGravity = true;
+      
+      camera.ellipsoid = new Vector3(0.4,0.8,0.4);
+
+      camera.checkCollisions = true;
 
       camera.attachControl(canvas, true);
 
-      camera.speed = 0.1;
+      const hero = MeshBuilder.CreateBox("hero", {size: 2.0}, scene);
+      hero.position.x = 0.0;
+      hero.position.y = 1.0;
+      hero.position.z = 0.0;
+      //hero.physicsImpostor = new PhysicsImpostor(hero, PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.0, friction: 0.1 }, scene);
 
-      camera.wheelPrecision = 10;
+      const pointer = MeshBuilder.CreateSphere("Sphere", { diameter: 0.01 }, scene);
+      pointer.position.x = 0.0;
+      pointer.position.y = 0.0;
+      pointer.position.z = 0.0;
+      pointer.isPickable = false;
+
+      let moveForward: boolean = false;
+      let moveBackward: boolean = false;
+      let moveRight: boolean = false;
+      let moveLeft: boolean = false;
+
+
+      const onKeyDown = function (event: { keyCode: any; }) {
+        switch (event.keyCode) {
+            case 38: // up
+            case 87: // w
+                moveForward = true;
+                break;
+
+            case 37: // left
+            case 65: // a
+                moveLeft = true; break;
+
+            case 40: // down
+            case 83: // s
+                moveBackward = true;
+                break;
+
+            case 39: // right
+            case 68: // d
+                moveRight = true;
+                break;
+
+            case 32: // space
+                break;
+        }
+    };
+
+    const onKeyUp = function (event: { keyCode: any; }) {
+        switch (event.keyCode) {
+            case 38: // up
+            case 87: // w
+                moveForward = false;
+                break;
+
+            case 37: // left
+            case 65: // a
+                moveLeft = false;
+                break;
+
+            case 40: // down
+            case 83: // a
+                moveBackward = false;
+                break;
+
+            case 39: // right
+            case 68: // d
+                moveRight = false;
+                break;
+        }
+    };
+    
+    
+
+    document.addEventListener('keydown',onKeyDown,false);
+    document.addEventListener('keyup',onKeyUp,false);
+
+
+    scene.registerBeforeRender(()=> {
+
+        //Your code here
+        //Step
+            //let stats = document.getElementById("stats");
+            //stats.innerHTML = "";  
+            const SPEED = 0.1;
+
+            let moveX = 0;
+            let moveZ = 0;
+            
+            if (moveForward) {
+                moveZ += SPEED;
+            }
+            if (moveBackward) {
+                moveZ -= SPEED;
+            }
+            if (moveRight) {
+                moveX += SPEED;
+            }
+            if (moveLeft) {
+                moveX -= SPEED;
+            }
+            
+            hero.position.x += moveX;
+            hero.position.z += moveZ;
+            
+            camera.position.x = hero.position.x;
+            camera.position.y = hero.position.y + 1.0;
+            camera.position.z = hero.position.z;
+            pointer.position = camera.getTarget();            
+
+    });
+
+    let isLocked = false;
+    
+
+    scene.onPointerDown = (evt) => {
+      if (!isLocked){
+        canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+        if (canvas.requestPointerLock){
+          canvas.requestPointerLock();
+        }
+      }
+    }
+
+
+    	// Event listener when the pointerlock is updated (or removed by pressing ESC for example).
+	const pointerlockchange =  () => {
+
+		let controlEnabled = (document as any).mozPointerLockElement || (document as any).webkitPointerLockElement || (document as any).msPointerLockElement || document.pointerLockElement || null;
+		
+		// If the user is already locked
+		if (!controlEnabled) {
+			//camera.detachControl(canvas);
+			isLocked = false;
+		} else {
+			//camera.attachControl(canvas);
+			isLocked = true;
+		}
+	};
+  	// Attach events to the document
+	document.addEventListener("pointerlockchange", pointerlockchange, false);
+	document.addEventListener("mspointerlockchange", pointerlockchange, false);
+	document.addEventListener("mozpointerlockchange", pointerlockchange, false);
+	document.addEventListener("webkitpointerlockchange", pointerlockchange, false);
+
+
+  const border0 = MeshBuilder.CreateBox("border0", {size : 1.0}, scene);
+  border0.scaling = new Vector3(5, 100, 200);
+  border0.position.x = -100.0;
+  border0.checkCollisions = true;
+  border0.isVisible = false;
+
+  const border1 = MeshBuilder.CreateBox("border1", {size : 1.0}, scene);
+  border1.scaling = new Vector3(5, 100, 200);
+  border1.position.x = 100.0;
+  border1.checkCollisions = true;
+  border1.isVisible = false;
+
+  const border2 = MeshBuilder.CreateBox("border2", {size : 1.0}, scene);
+  border2.scaling = new Vector3(200, 100, 5);
+  border2.position.z = 100.0;
+  border2.checkCollisions = true;
+  border2.isVisible = false;
+
+  const border3 = MeshBuilder.CreateBox("border3", {size : 1.0}, scene);
+  border3.scaling = new Vector3(200, 100, 5);
+  border3.position.z = -100.0;
+  border3.checkCollisions = true;
+  border3.isVisible = false;
+
+  // border0.physicsImpostor = new PhysicsImpostor(border0, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+  // border1.physicsImpostor = new PhysicsImpostor(border1, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+  // border2.physicsImpostor = new PhysicsImpostor(border2, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+  // border3.physicsImpostor = new PhysicsImpostor(border3, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+
 
 
   
@@ -108,133 +305,17 @@ const roomDetails = () => {
         boardRootMesh.position = new Vector3(5.5, 1, 0);
     }
 
+     meshes.map(mesh => {
+      mesh.checkCollisions = true;
+     });
 
-      const charcter = async () => {
-        try {
-          const result = await SceneLoader.ImportMeshAsync("", "/models/", "HVGirl.glb",scene);
-          // Do something with the result here
-          return result; // You can return the result if needed
-        } catch (error) {
-          // Handle errors if necessary
-          console.error(error);
-          throw error; // Re-throw the error if needed
-        }
-      };
 
-      const {meshes: player_meshes} = await charcter();
+
+
 
       // const player = player_meshes.find(mesh => mesh.name === '__root__');
 
 
-      const player = player_meshes[0];
-
-      
-
-
-
-      player.scaling.setAll(0.02);
-
-      camera.setTarget(player);
-
-
-    
-     const walkingAnim = scene.getAnimationGroupByName("Walking");
-     const walkingBackAnim = scene.getAnimationGroupByName("WalkingBack");
-     const idleAnim = scene.getAnimationGroupByName("Idle");
-     const sambaAnim = scene.getAnimationGroupByName("Samba");
-
-
-
-      const playerWalkSpeed = 0.05;
-      const playerRunSpeed = 0.1;
-      const playerSpeedBackwards = 0.01;
-      const playerRotationSpeed = 0.01;
-      const runAnimSpeed = 3;
-      const walkAnimSpeed = 1;
-
-
-
-      let keyStatus:KeyStatus = {
-        w: false,
-        s:false,
-        a: false,
-        d: false,
-        b: false,
-        Shift: false
-      }
-
-      scene.actionManager = new ActionManager(scene);
-
-      scene.actionManager.registerAction( new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, (e) => {
-        let key = e.sourceEvent.key as keyof KeyStatus;
-
-        if (key !== "Shift"){
-          key = key.toLowerCase() as keyof KeyStatus;
-
-        }
-        if (key in keyStatus){
-          keyStatus[key] = true;
-
-        }
-      }));
-
-
-      scene.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, (e) => {
-          let key = e.sourceEvent.key as keyof KeyStatus;
-
-          if(key !== "Shift"){
-            key = key.toLowerCase() as keyof KeyStatus;
-          }
-
-          if(key in keyStatus){
-            keyStatus[key] = false;
-          }
-      }))
-
-      let moving = false;
-
-      scene.onBeforeRenderObservable.add(
-          () => {
-            if (
-              keyStatus.w || 
-              keyStatus.s || 
-              keyStatus.d || 
-              keyStatus.a || 
-              keyStatus.b 
-              ){
-                moving = true
-                if (keyStatus.s && !keyStatus.w){
-                  speed = -playerSpeedBackwards;
-                  walkingBackAnim?.start(true,1,walkingBackAnim.from, walkingBackAnim.to, false);
-                }else if (keyStatus.w || keyStatus.a || keyStatus.d){
-                  speed = keyStatus.Shift ? playerRunSpeed : playerWalkSpeed;
-                  animSpeed = keyStatus.Shift ? runAnimSpeed :  walkAnimSpeed;
-  
-                  if (walkingAnim){
-                     walkingAnim.speedRatio = animSpeed;
-                     walkingAnim.start(true,animSpeed,walkingAnim.from, walkingAnim.to, false);
-                    }
-                  
-                }
-
-                if(keyStatus.a){
-                  player.rotate(Vector3.Up(), -playerRotationSpeed);
-                }
-                if(keyStatus.d){
-                  player.rotate(Vector3.Up(), playerRotationSpeed);
-                }
-
-                player.moveWithCollisions(player.forward.scaleInPlace(speed));
-              } else if (moving){
-                idleAnim?.start(true,1.0,idleAnim.from, idleAnim.to, false);
-                sambaAnim?.stop();
-                walkingAnim?.stop();
-                walkingBackAnim?.stop;
-                moving = false;
-              }
-          }
-      )
-      
       // Assuming 'scene' is your Babylon.js scene object
       engine.runRenderLoop(() => {
 
@@ -298,3 +379,4 @@ const roomDetails = () => {
 };
 
 export default roomDetails;
+
