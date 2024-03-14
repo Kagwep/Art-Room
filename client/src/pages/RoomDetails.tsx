@@ -83,7 +83,7 @@ const roomDetails = () => {
 
 
    // camera
-      const camera = new UniversalCamera("UniversalCamera", new Vector3(0,2,-25), scene);
+      const camera = new UniversalCamera("UniversalCamera", new Vector3(5,1,22), scene);
 
       camera.setTarget(Vector3.Zero());
 
@@ -96,9 +96,9 @@ const roomDetails = () => {
       camera.attachControl(canvas, true);
 
       const hero = MeshBuilder.CreateBox("hero", {size: 2.0}, scene);
-      hero.position.x = 0.0;
+      hero.position.x = 5.42;
       hero.position.y = 1.0;
-      hero.position.z = 0.0;
+      hero.position.z = 22.75;
       //hero.physicsImpostor = new PhysicsImpostor(hero, PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.0, friction: 0.1 }, scene);
 
       const pointer = MeshBuilder.CreateSphere("Sphere", { diameter: 0.01 }, scene);
@@ -169,39 +169,52 @@ const roomDetails = () => {
     document.addEventListener('keyup',onKeyUp,false);
 
 
-    scene.registerBeforeRender(()=> {
+    scene.registerBeforeRender(() => {
+      const SPEED = 0.1;
+  
+      // Get the direction the camera is facing
+      const forward = new Vector3(
+          Math.sin(camera.rotation.y),
+          0,
+          Math.cos(camera.rotation.y)
+      );
+  
+      const right = new Vector3(
+          Math.cos(camera.rotation.y),
+          0,
+          -Math.sin(camera.rotation.y)
+      );
+  
+      let moveX = 0;
+      let moveZ = 0;
+  
+      if (moveForward) {
+          moveZ += SPEED;
+      }
+      if (moveBackward) {
+          moveZ -= SPEED;
+      }
+      if (moveRight) {
+          moveX += SPEED;
+      }
+      if (moveLeft) {
+          moveX -= SPEED;
+      }
+  
+      // Transform the movement direction relative to camera orientation
+      const movement = forward.scale(moveZ).add(right.scale(moveX));
+  
+      // Update hero position based on transformed movement
+      hero.position.addInPlace(movement);
+  
+      // Update camera position relative to hero
+      camera.position.x = hero.position.x;
+      camera.position.z = hero.position.z;
+      pointer.position = camera.getTarget();
 
-        //Your code here
-        //Step
-            //let stats = document.getElementById("stats");
-            //stats.innerHTML = "";  
-            const SPEED = 0.1;
-
-            let moveX = 0;
-            let moveZ = 0;
-            
-            if (moveForward) {
-                moveZ += SPEED;
-            }
-            if (moveBackward) {
-                moveZ -= SPEED;
-            }
-            if (moveRight) {
-                moveX += SPEED;
-            }
-            if (moveLeft) {
-                moveX -= SPEED;
-            }
-            
-            hero.position.x += moveX;
-            hero.position.z += moveZ;
-            
-            camera.position.x = hero.position.x;
-            camera.position.y = hero.position.y + 1.0;
-            camera.position.z = hero.position.z;
-            pointer.position = camera.getTarget();            
-
-    });
+  });
+  
+  
 
     let isLocked = false;
     
@@ -310,9 +323,24 @@ const roomDetails = () => {
      });
 
 
+      const test_mesh = meshes[40];
+
+      console.log(meshes)
 
 
+      const paint42 = new StandardMaterial("material", scene);
 
+      // Load the texture
+      const texture = new Texture("https://res.cloudinary.com/duybctvku/image/upload/v1710409854/_27262f6a-ccf7-4ea1-a21b-6296504c1814_qvifas.jpg", scene, false, false, Texture.NEAREST_SAMPLINGMODE);
+      
+      // Assign the texture to the material
+      paint42.diffuseTexture = texture;
+      
+      // Assign the material to the mesh
+      test_mesh.material = paint42;
+
+
+   
       // const player = player_meshes.find(mesh => mesh.name === '__root__');
 
 
