@@ -25,11 +25,18 @@ import {
   Color3,
   AmmoJSPlugin,
   CannonJSPlugin,
-  HavokPlugin
+  HavokPlugin,
+  ActionEvent,
+  BabylonFileLoaderConfiguration
 } from "@babylonjs/core";
 import '@babylonjs/loaders';
 import { TfiRulerAlt } from "react-icons/tfi";
 import HavokPhysics from "@babylonjs/havok";
+import * as CANNON from 'cannon';
+
+// Make Cannon.js available in the global scope
+BabylonFileLoaderConfiguration.LoaderInjectedPhysicsEngine = CANNON ;
+window.CANNON = CANNON;
 
 type KeyStatus = {
   w: boolean;
@@ -71,35 +78,70 @@ const roomDetails = () => {
       // scene
       const scene = new Scene(engine);
 
-      scene.ambientColor =  new Color3(1,1,1);
-      scene.gravity = new Vector3(0,-0.75,0);
+      scene.ambientColor =  new Color3(.1,0.1,0.1);
+      //scene.gravity = new Vector3(0,-0.75,0);
+
+     
+ 
 
       scene.collisionsEnabled = true;
 
-
-
-
-
+  
 
 
    // camera
-      const camera = new UniversalCamera("UniversalCamera", new Vector3(5,1,22), scene);
+      //const camera = new UniversalCamera("UniversalCamera", new Vector3(5,5,22), scene);
+      const camera = new FreeCamera("FreeCamera", new Vector3(0,2,5), scene);
 
       camera.setTarget(Vector3.Zero());
 
-      camera.applyGravity = true;
-      
-      camera.ellipsoid = new Vector3(0.4,0.8,0.4);
+     
 
       camera.checkCollisions = true;
 
+
+      camera.applyGravity = true;
+
+      camera.checkCollisions = true;
+
+      camera.ellipsoid = new Vector3(1,1,1);
+
+      camera.minZ = 0.35
+      
+
       camera.attachControl(canvas, true);
 
-      const hero = MeshBuilder.CreateBox("hero", {size: 2.0}, scene);
-      hero.position.x = 5.42;
-      hero.position.y = 1.0;
-      hero.position.z = 22.75;
-      //hero.physicsImpostor = new PhysicsImpostor(hero, PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0.0, friction: 0.1 }, scene);
+      camera.speed = 0.75;
+
+      camera.angularSensibility = 4000
+
+
+
+
+      
+      var gravityVector = new Vector3(0,-9.81, 0);
+      var physicsPlugin = new CannonJSPlugin();
+      scene.enablePhysics(gravityVector, physicsPlugin);
+
+      // const hero = MeshBuilder.CreateBox("hero", {size: 0.1}, scene);
+      // hero.position.x = 5.42;
+      // hero.position.y = 1.0;
+      // hero.position.z = 22.75;
+      // hero.physicsImpostor = new PhysicsImpostor(hero, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
+      
+        // Create a basic box
+        // const testBox = MeshBuilder.CreateBox("testBox", {size: 20}, scene);
+
+        // // Create a standard material with a red color
+        // const redMaterial = new StandardMaterial("redMat", scene);
+        // redMaterial.diffuseColor = new Color3(1, 0, 0); // RGB for red
+        // testBox.material = redMaterial;
+
+        // // Position the box in the scene (adjust as necessary)
+        // testBox.position = new Vector3(5, 1, 20);
+
+        // // Enable collisions for the box
+        // testBox.checkCollisions = true;
 
       const pointer = MeshBuilder.CreateSphere("Sphere", { diameter: 0.01 }, scene);
       pointer.position.x = 0.0;
@@ -111,109 +153,15 @@ const roomDetails = () => {
       let moveBackward: boolean = false;
       let moveRight: boolean = false;
       let moveLeft: boolean = false;
+      let moveUp:boolean = false;
+      let moveDown:boolean = false;
 
 
-      const onKeyDown = function (event: { keyCode: any; }) {
-        switch (event.keyCode) {
-            case 38: // up
-            case 87: // w
-                moveForward = true;
-                break;
 
-            case 37: // left
-            case 65: // a
-                moveLeft = true; break;
-
-            case 40: // down
-            case 83: // s
-                moveBackward = true;
-                break;
-
-            case 39: // right
-            case 68: // d
-                moveRight = true;
-                break;
-
-            case 32: // space
-                break;
-        }
-    };
-
-    const onKeyUp = function (event: { keyCode: any; }) {
-        switch (event.keyCode) {
-            case 38: // up
-            case 87: // w
-                moveForward = false;
-                break;
-
-            case 37: // left
-            case 65: // a
-                moveLeft = false;
-                break;
-
-            case 40: // down
-            case 83: // a
-                moveBackward = false;
-                break;
-
-            case 39: // right
-            case 68: // d
-                moveRight = false;
-                break;
-        }
-    };
-    
-    
-
-    document.addEventListener('keydown',onKeyDown,false);
-    document.addEventListener('keyup',onKeyUp,false);
-
-
-    scene.registerBeforeRender(() => {
-      const SPEED = 0.1;
-  
-      // Get the direction the camera is facing
-      const forward = new Vector3(
-          Math.sin(camera.rotation.y),
-          0,
-          Math.cos(camera.rotation.y)
-      );
-  
-      const right = new Vector3(
-          Math.cos(camera.rotation.y),
-          0,
-          -Math.sin(camera.rotation.y)
-      );
-  
-      let moveX = 0;
-      let moveZ = 0;
-  
-      if (moveForward) {
-          moveZ += SPEED;
-      }
-      if (moveBackward) {
-          moveZ -= SPEED;
-      }
-      if (moveRight) {
-          moveX += SPEED;
-      }
-      if (moveLeft) {
-          moveX -= SPEED;
-      }
-  
-      // Transform the movement direction relative to camera orientation
-      const movement = forward.scale(moveZ).add(right.scale(moveX));
-  
-      // Update hero position based on transformed movement
-      hero.position.addInPlace(movement);
-  
-      // Update camera position relative to hero
-      camera.position.x = hero.position.x;
-      camera.position.z = hero.position.z;
-      pointer.position = camera.getTarget();
-
-  });
-  
+    camera.keysUp.push(87)
+    camera.keysLeft.push(65)
+    camera.keysDown.push(83)
+    camera.keysRight.push(68)
   
 
     let isLocked = false;
@@ -250,34 +198,7 @@ const roomDetails = () => {
 	document.addEventListener("webkitpointerlockchange", pointerlockchange, false);
 
 
-  const border0 = MeshBuilder.CreateBox("border0", {size : 1.0}, scene);
-  border0.scaling = new Vector3(5, 100, 200);
-  border0.position.x = -100.0;
-  border0.checkCollisions = true;
-  border0.isVisible = false;
 
-  const border1 = MeshBuilder.CreateBox("border1", {size : 1.0}, scene);
-  border1.scaling = new Vector3(5, 100, 200);
-  border1.position.x = 100.0;
-  border1.checkCollisions = true;
-  border1.isVisible = false;
-
-  const border2 = MeshBuilder.CreateBox("border2", {size : 1.0}, scene);
-  border2.scaling = new Vector3(200, 100, 5);
-  border2.position.z = 100.0;
-  border2.checkCollisions = true;
-  border2.isVisible = false;
-
-  const border3 = MeshBuilder.CreateBox("border3", {size : 1.0}, scene);
-  border3.scaling = new Vector3(200, 100, 5);
-  border3.position.z = -100.0;
-  border3.checkCollisions = true;
-  border3.isVisible = false;
-
-  // border0.physicsImpostor = new PhysicsImpostor(border0, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
-  // border1.physicsImpostor = new PhysicsImpostor(border1, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
-  // border2.physicsImpostor = new PhysicsImpostor(border2, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
-  // border3.physicsImpostor = new PhysicsImpostor(border3, PhysicsImpostor.BoxImpostor, { mass: 0 }, scene);
 
 
 
@@ -310,38 +231,126 @@ const roomDetails = () => {
       };
       
       // Call the function
-      const {meshes} = await loadModels('canvasarium.gltf');
+      const {meshes} = await loadModels('artroom3.glb');
 
-      let boardRootMesh = meshes.find(mesh => mesh.name === '__root__');
+        
+          // Example function to apply physics to meshes with geometry
+      meshes.forEach(mesh => {
+            mesh.unfreezeWorldMatrix();
+            mesh.checkCollisions = true;
+            mesh.checkCollisions = true;
+          });
+
+      let boardRootMesh = meshes.find(mesh => mesh.name === '__root__')?.unfreezeWorldMatrix();
+      
 
       if (boardRootMesh) {
         boardRootMesh.position = new Vector3(5.5, 1, 0);
+        boardRootMesh.checkCollisions = true;
+        boardRootMesh.actionManager = new ActionManager(scene);
+
+    
     }
 
-     meshes.map(mesh => {
-      mesh.checkCollisions = true;
-     });
 
 
-      const test_mesh = meshes[40];
+    //  var actionParameter = { trigger: ActionManager.OnIntersectionEnterTrigger, parameter: hero };
 
-      console.log(meshes)
+    //  boardRootMesh?.actionManager?.registerAction(new ExecuteCodeAction(actionParameter, function(event: ActionEvent) 
+    //  {
+    //      console.log("Hit!");
+    //  }));
+
+    //   // Unfreeze the world matrix if needed
+    meshes[7].unfreezeWorldMatrix();
+       meshes[106].unfreezeWorldMatrix();
+       meshes[107].unfreezeWorldMatrix();
+       meshes[110].unfreezeWorldMatrix();
+       meshes[111].unfreezeWorldMatrix();
+       meshes[131].unfreezeWorldMatrix();
+
+    //   // Reference the mesh directly
+
+    const roof = meshes[7];
+    roof.checkCollisions = true;
+
+    const roofUpper = meshes[111];
+    roofUpper.checkCollisions = true;
 
 
+    const test_mesh = meshes[106];
+     test_mesh.checkCollisions = true;
+
+     const test_mesh_one = meshes[107];
+     test_mesh_one.checkCollisions = true;
+
+
+     const test_mesh_three = meshes[110];
+     test_mesh_three.checkCollisions = true;
+     
+
+     const test_mesh_four = meshes[131];
+     test_mesh_four.checkCollisions = true;
+    //   // Then proceed with your logic
+    //   if (test_mesh) {
+    //       test_mesh.physicsImpostor = new PhysicsImpostor(
+    //           test_mesh,
+    //           PhysicsImpostor.MeshImpostor,
+    //           { mass: 0, restitution: 0.9 },
+    //           scene
+    //       );
+    //   }
+
+
+    console.log(meshes)
+
+
+      const roofPaint = new StandardMaterial("roof_material",scene);
+      const roofPaintUpper = new StandardMaterial("roofUpper_material",scene);
       const paint42 = new StandardMaterial("material", scene);
+      const paint43 = new StandardMaterial("materialOne", scene);
+      const paint44 = new StandardMaterial("materialTWo", scene);
+      const paint45 = new StandardMaterial("materialThree", scene);
 
-      // Load the texture
-      const texture = new Texture("https://res.cloudinary.com/duybctvku/image/upload/v1710409854/_27262f6a-ccf7-4ea1-a21b-6296504c1814_qvifas.jpg", scene, false, false, Texture.NEAREST_SAMPLINGMODE);
+    //   // Load the texture
+      const texture = new Texture("https://res.cloudinary.com/duybctvku/image/upload/v1710409854/_27262f6a-ccf7-4ea1-a21b-6296504c1814_qvifas.jpg", scene);
+      const textureOne = new Texture("https://res.cloudinary.com/dydj8hnhz/image/upload/v1713328718/DALL_E_2024-04-16_18.38.44_-_Illustration_of_a_Forest_Kingdom_for_a_3D_MMO_strategy_game._This_world_is_characterized_by_a_dense_ancient_forest_with_towering_trees_hidden_paths_ei2pzk.jpg", scene);
+      const roofTexture = new Texture("https://res.cloudinary.com/dydj8hnhz/image/upload/v1713329431/DALL_E_2024-04-17_07.49.36_-_A_highly_detailed_panoramic_space-themed_image_suitable_for_use_as_a_decorative_element._The_image_should_capture_the_essence_of_outer_space_filled_axh51i.jpg", scene);
+      const roofUpperTexture = new Texture("https://res.cloudinary.com/dydj8hnhz/image/upload/v1713331226/roof_a7naiy.jpg", scene);
+      const textureTwo = new Texture("https://res.cloudinary.com/dydj8hnhz/image/upload/v1713328708/DALL_E_2024-04-16_18.38.36_-_Artistic_depiction_of_Highland_Empires_for_a_3D_MMO_strategy_game._The_setting_is_a_rugged_mountainous_terrain_with_high_peaks_deep_valleys_and_fort_l1ihty.jpg", scene);
+      const textureThree = new Texture("https://res.cloudinary.com/dydj8hnhz/image/upload/v1713328715/DALL_E_2024-04-16_18.38.28_-_Illustration_of_a_Frozen_Wasteland_for_a_3D_MMO_strategy_game._The_environment_is_a_cold_harsh_landscape_of_ice_and_snow_featuring_frozen_lakes_sno_mvr4v6.jpg", scene);
+
+
+
+     texture.vScale = -1;
+     textureOne.vScale = -1;
+     textureTwo.vScale = -1;
+     textureThree.vScale =  -1;
+
       
-      // Assign the texture to the material
-      paint42.diffuseTexture = texture;
+    //   // Assign the texture to the material
+     paint42.diffuseTexture = texture;
+     paint43.diffuseTexture = textureOne;
+     roofPaint.diffuseTexture = roofTexture;
+     roofPaintUpper.diffuseTexture = roofUpperTexture;
+     paint44.diffuseTexture = textureTwo;
+     paint45.diffuseTexture = textureThree;
       
-      // Assign the material to the mesh
-      test_mesh.material = paint42;
+    //   // Assign the material to the mesh
+       test_mesh.material = paint42;
+       test_mesh_one.material = paint43;
+       roof.material = roofPaint;
+       roofUpper.material = roofPaintUpper;
+       test_mesh_three.material = paint44;
+       test_mesh_four.material = paint45;
 
 
    
       // const player = player_meshes.find(mesh => mesh.name === '__root__');
+     // hero.checkCollisions = true;
+
+            
+
 
 
       // Assuming 'scene' is your Babylon.js scene object
@@ -397,10 +406,10 @@ const roomDetails = () => {
   //console.log("am available here",playerTurn);
 
   return (
-    <div className="container mx-auto">
-      <div className="w-full mt-28 h-screen  flex justify-center items-center">
+    <div >
+      
           <canvas className="canvas" ref={canvasRef}></canvas>
-      </div>
+      
     </div>
 
   );

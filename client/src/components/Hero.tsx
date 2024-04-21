@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
-    <section className="h-[1050px] bg-hero bg-no-repeat bg-cover bg-center py-20">
+    <section className="h-[1250px] bg-hero bg-no-repeat bg-cover bg-center py-20">
       <div className="container mx-auto flex justify-around h-full items-center">
         {/* Virtual Art Gallery */}
         <div className="text-center">
