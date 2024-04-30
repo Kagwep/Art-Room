@@ -1,8 +1,0 @@
-**/dist/
-**/node_modules/
-public
-vite.config.ts
-cypress.config.ts
-postcss.config.js
-tailwind.config.js
-cypress

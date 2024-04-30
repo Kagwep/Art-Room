@@ -5,11 +5,11 @@
 **Technology Stack:**
 
 - **Frontend:** Web-based application (Babylonjs, React)
-- **Backend:** Smart contracts deployed on Starknet (a Layer 2 scaling solution for Ethereum)
+- **Backend:** Smart contracts deployed on Linea (a Layer 2 scaling solution for Ethereum)
 
 **Core Functionalities:**
 
-- **Artist Accounts:** Artists create accounts to manage their profiles, upload artworks (as NFTs), configure their virtual art rooms, and set access fees.
+
 - **Art Room Creation:** Artists can design their virtual art rooms, customizing the layout and ambience to best display their work.
 - **NFT Minting & Uploads:** Artists mint their artworks as NFTs, associating them with their Art Rooms for secure ownership tracking.
 - **User Exploration:** Users can explore various Art Rooms, some freely accessible and others requiring a small entrance fee paid in cryptocurrency.
@@ -21,11 +21,11 @@
 
 **Conceptual Workflow:**
 
-1. **Artist Signup:** Artists create accounts on the platform, providing profile information and connecting their crypto wallets.
-2. **Art Room Creation:** Artists define the layout and design of their virtual art rooms using provided tools.
-3. **NFT Minting & Uploads:** Artists mint their digital artwork as NFTs, associating them with their Art Rooms.
-4. **Smart Contract Interaction:** Starknet smart contracts manage NFT minting, ownership tracking, and potential future sales within Art Rooms.
-5. **User Exploration:** Users can access Art Room through a web browser and explore various artist-created virtual galleries. Some Art Rooms are free to enter, while others require a small entrance fee paid in cryptocurrency using the integrated wallet functionality.
+
+1. **Art Room Creation:** Artists define the layout and design of their virtual art rooms using provided tools.
+2. **NFT Minting & Uploads:** Artists mint their digital artwork as NFTs, associating them with their Art Rooms.
+3. **Smart Contract Interaction:** Linea smart contracts manage NFT minting, ownership tracking, and potential future sales within Art Rooms.
+4. **User Exploration:** Users can access Art Room through a web browser and explore various artist-created virtual galleries. Some Art Rooms are free to enter, while others require a small entrance fee paid in cryptocurrency using the integrated wallet functionality.
 
 **Benefits:**
 
