@@ -3,11 +3,16 @@ import { SidebarContext } from "../contexts/SidebarContext";
 import { Link } from "react-router-dom";
 import Logo from "../img/logo.svg";
 import { BsBag,BsHeartFill } from "react-icons/bs";
+import { useUser } from '@/components/NavBar/useUser.ts';
+import AddressChip from '@/components/NavBar/AddressChip.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { LogOut } from 'react-feather'
 
 const Header = () => {
   // header state
   const [isActive, setIsActive] = useState(false);
   const { isOpen, setIsOpen } = useContext(SidebarContext);
+  const { isConnected, address,  login, logout } = useUser();
 
 
   // event listener
@@ -35,7 +40,7 @@ const Header = () => {
           <ul className="flex border-b">
               <li className="-mb-px mr-1">
                 <Link to={"/galleries"}>
-                  <a className="bg-white inline-block border-l border-t border-r rounded-t py-2 px-4 text-blue-700 font-semibold" href="#">Galleries</a>
+                  <a className="bg-white inline-block   py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold" href="#">Galleries</a>
                 </Link>
               </li>
               <li className="mr-1">
@@ -49,9 +54,31 @@ const Header = () => {
           onClick={() => setIsOpen(!isOpen)}
           className="cursor-pointer flex relative"
         >
-          <BsHeartFill className="text-2xl" />
-          <div className="bg-red-500 absolute -right-2 -bottom-2 text-[12px] w-[18px] h-[18px] text-white rounded-full flex justify-center items-center">
-          </div>
+                {isConnected  ? (
+                    <div className="flex flex-1 items-center justify-end gap-x-1">
+                      <AddressChip  address={address!} />
+                      <button
+                        type="button"
+                        className="-mr-2 bg-amber-500 p-2"
+                        onClick={() => logout()}
+                      >
+                        <LogOut size="20" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-1 items-center justify-end">
+                      {/* w-[98px] = Match what's in react ui kit */}
+                      <Button
+                        size="sm"
+                        className="w-[98px]  font-size-l bg-green-500 font-weight-bold"
+                        onClick={() => {
+                          login();
+                        }}
+                      >
+                        Login
+                      </Button>
+                    </div>
+                  )}
         </div>
       </div>
     </header>

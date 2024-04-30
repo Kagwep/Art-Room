@@ -32,8 +32,8 @@ import {
 } from "@babylonjs/core";
 import '@babylonjs/loaders';
 import { TfiRulerAlt } from "react-icons/tfi";
-import HavokPhysics from "@babylonjs/havok";
 import * as CANNON from 'cannon';
+import { AdvancedDynamicTexture, TextBlock, StackPanel, Rectangle } from '@babylonjs/gui';
 
 // Make Cannon.js available in the global scope
 BabylonFileLoaderConfiguration.LoaderInjectedPhysicsEngine = CANNON ;
@@ -92,7 +92,7 @@ const roomDetails = () => {
 
    // camera
       //const camera = new UniversalCamera("UniversalCamera", new Vector3(5,5,22), scene);
-      const camera = new FreeCamera("FreeCamera", new Vector3(0,2,5), scene);
+      const camera = new FreeCamera("FreeCamera", new Vector3(0,2,-90), scene);
 
       camera.setTarget(Vector3.Zero());
 
@@ -376,7 +376,7 @@ const roomDetails = () => {
           var differenceVector = paintStepPosition.subtract(playerPosition);
           var distance = Math.sqrt(differenceVector.x * differenceVector.x + differenceVector.z * differenceVector.z);
 
-          console.log(distance)
+         // console.log(distance)
           
          
           // Define a small tolerance for being "directly above"
@@ -395,7 +395,28 @@ const roomDetails = () => {
           }
       })
 
-    
+        // Create GUI
+        const guiTexture = AdvancedDynamicTexture.CreateFullscreenUI('UI');
+        const panel = new StackPanel();
+        panel.width = '220px';
+        panel.horizontalAlignment = 0; // Align to the left
+        panel.verticalAlignment = 1; // Align to the bottom
+        guiTexture.addControl(panel);
+
+        const title = new TextBlock();
+        title.text = 'Navigation Instructions';
+        title.color = 'cyan'; // Set color to cyan
+        title.fontSize = 16;
+        title.height = '30px';
+        panel.addControl(title);
+
+        const instructions = new TextBlock();
+        instructions.text = ' Click anywhere on screen to start\nUse WASD keys for navigation\nMouse for movement\nPress ESC to release mouse';
+        instructions.color = 'yellow'; // Set color to yellow
+        instructions.fontSize = 14;
+        instructions.height = '90px';
+        panel.addControl(instructions);
+
       // Assuming 'scene' is your Babylon.js scene object
       engine.runRenderLoop(() => {
 
@@ -451,7 +472,7 @@ const roomDetails = () => {
   return (
     <div >
       
-          <canvas className="canvas" ref={canvasRef}></canvas>
+      <canvas className="canvas" ref={canvasRef}></canvas>
       
     </div>
 

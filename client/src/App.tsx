@@ -1,5 +1,15 @@
-import React from "react"
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import React,{ useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAccount, useNetwork } from 'wagmi';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
+import { orange,green } from '@mui/material/colors';
+import {
+  LoginGuard,
+} from './features';
+
+
+
+
 
 import Home from "./pages/Home"
 import RoomDetails from "./pages/RoomDetails";
@@ -12,24 +22,107 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
-const App = () => {
+declare module '@mui/material/styles' {
+  interface Theme {
+    status: {
+      danger: string;
+    };
+  }
+  // allow configuration using `createTheme`
+  interface ThemeOptions {
+    status?: {
+      danger?: string;
+    };
+  }
+}
+
+
+const theme = createTheme({
+  status: {
+    danger: green[500],
+  },
+});
+
+
+
+function App() {
+  const { connector } = useAccount();
+  const { chain } = useNetwork();
+
+  useEffect(() => {
+    if (!connector) {
+      return;
+    }
+  }, [connector, chain]);
+
+
+
+  
+
+
+
   return (
-    <div className="overflow-hidden">
-      <Router>
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/galleries" element={<Galleries />}></Route>
-          <Route path="/my-galleries" element={<MyGallery />}></Route>
-          <Route path="/my-galleries/:id" element={<MyGalleryDetails />}></Route>
-          <Route path="/virtual-gallery" element={<AllRooms />}></Route>
-          <Route path="/room/:id" element={<RoomDetails />}></Route>
-        </Routes>
-        <Sidebar />
-        <Footer />
-      </Router>
+    <div className="App">
+       <Header />
+      <ThemeProvider theme={theme}>
+        <div className="">
+          <Routes>
+            <Route
+              path={`/`}
+              element={
+                 <Home />
+              }
+            />
+            <Route
+              path={`/galleries`}
+              element={
+                <LoginGuard>
+                  <Galleries />
+                </LoginGuard>
+              }
+            />
+            <Route
+              path={`/my-galleries`}
+              element={
+                <LoginGuard>
+                  <MyGallery />
+                </LoginGuard>
+              }
+            />
+            <Route
+              path={`/my-galleries/:id`}
+              element={
+                <LoginGuard>
+                  <MyGalleryDetails />
+                </LoginGuard>
+              }
+            />
+            <Route
+              path={`/virtual-gallery`}
+              element={
+                <LoginGuard>
+                  <AllRooms />
+                </LoginGuard>
+              }
+            />
+            <Route
+              path={`/room/:id`}
+              element={
+                <LoginGuard>
+                  <RoomDetails />
+                </LoginGuard>
+              }
+            />
+            {/* default redirect */}
+            <Route path="*" element={<Navigate to={`/`} />} />
+          </Routes>
+
+        </div>
+      </ThemeProvider>
+      <Sidebar />
+         <Footer />
     </div>
   );
-};
+}
 
 export default App;
